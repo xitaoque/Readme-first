@@ -12,10 +12,10 @@
 
 二、新的导入React与其组件的语法
 
-    从RN0.29起，不再允许老的导入RN与RN组件的语法了。需要替换两部分：
-    第一部分是：let React = require('react-native');在最新版本的RN开发中，把这个语句替换为：import React, { Component } from 'react';
+    从RN0.29起，不再允许老的导入RN与RN组件的语法了。我的书中使用ES5语法编写的例程仍然是可以使用的，只是每个例程都需要替换两个语句：
+    第一句是：let React = require('react-native');在最新版本的RN开发中，把这个语句替换为：import React, { Component } from 'react';
 
-    第二部分类似于：
+    第二句类似于：
 	let {
 		AppRegistry, 
 		StyleSheet, 
@@ -27,7 +27,7 @@
 	import {
 		//大括号中的内容保持不变	
 	} from 'react-native';
-    再运行代码，警告就会消除。本书中所有的例子都需要进行这两部分的修改以消除警告。
+    
 
 三、Promise机制
 
