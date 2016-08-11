@@ -1,0 +1,88 @@
+      在RN新版本中，监听键盘事件不再使用DeviceEventEmitter，而是使用全新的Keyboard模块。
+      原来的写法是：
+                  const { DeviceEventEmitter } = require('react-native');
+                  DeviceEventEmitter.addListener('keyboardWillShow', func);
+                  ......
+                  DeviceEventEmitter.removeListener('keyboardWillShow', func);
+      新的写法是：
+                  const { Keyboard } = require('react-native');
+                  Keyboard.addListener('keyboardWillShow', func);
+                  ......
+                  Keyboard.removeListener('keyboardWillShow', func);
+
+      不少读者喜好ES 6语法，但在将本书例程6-12改为ES 6语法时会遇到些坑儿，因此在此给出使用ES 6语法编写的新的例程6-12。
+      
+import React, { Component } from 'react';
+import { TextInput, Text,  View, StyleSheet, AppRegistry, Keyboard } from 'react-native';
+let Dimensions = require('Dimensions');
+let totalHeight = Dimensions.get('window').height;
+
+class Project31 extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            KeyboardShown:false,   //这个变量用来记录软键盘是否已经被弹出
+        };
+        //在对象初始化时，对两个监听器进行绑定
+        this.keyboardDidShowListener = this.keyboardDidShowListener.bind(this);
+        this.keyboardDidHideListener = this.keyboardDidHideListener.bind(this);
+    }
+    //定义键盘已经弹出事件监听器，不能使用箭头函数定义，因为卸载监听器时需要用到引用
+    keyboardDidShowListener(event) {
+        this.setState({KeyboardShown: true});
+    }
+    //定义键盘已经隐藏事件监听器，不能使用箭头函数定义，因为卸载监听器时需要用到引用
+    keyboardDidHideListener(event) {
+        this.setState({KeyboardShown: false});
+    }
+    componentWillMount() {
+        //下面这条语句开始监听键盘已经弹出事件，并设置处理这个事件的函数
+        Keyboard.addListener('keyboardDidShow', this.keyboardDidShowListener);        
+        //下面这条语句开始监听键盘已经隐藏事件，并设置处理这个事件的函数
+        Keyboard.addListener('keyboardDidHide',this.keyboardDidHideListener);
+    }
+    componentWillUnmount() {
+        //卸载两个事件监听器
+        Keyboard.removeListener('keyboardDidShow',this.keyboardDidShowListen);
+        Keyboard.removeListener('keyboardDidHide',this.keyboardDidHideListen);
+    }
+    onDismissKeyboard() {  //这个函数用来强制隐藏键盘
+        let dismissKeyboard = require('dismissKeyboard')
+        dismissKeyboard();
+    }
+    render() {    
+        return (
+            <View style={[styles.container, this.state.KeyboardShown && styles.bumpedContainer]}> 
+                <Text style={styles.buttonStyle}
+                    onPress={this.onDismissKeyboard.bind(this)}>
+                    Dismiss Keyboard
+                </Text>          
+                <TextInput style={styles.textInputStyles}/>
+            </View>
+        );
+    }
+}
+var styles = StyleSheet.create({
+    container: {
+        flex: 1,    
+    },
+    bumpedContainer: {    //用来让父容器整体上移的样式
+        marginBottom: 210,
+        marginTop: -210,
+    },
+    buttonStyle: {
+        top:250,
+        fontSize:30,
+        backgroundColor: 'grey'
+    },
+    textInputStyles: {
+        position:'absolute',
+        top:totalHeight-80,
+        left:20,
+        width:200,
+        height:30,
+        fontSize:20,
+        backgroundColor:'grey'
+    }  
+});
+AppRegistry.registerComponent('Project31', () => Project31);
